@@ -1,15 +1,17 @@
 // Splits the reports merged into one ticket by the problem behind them. causes.ts says which cause a
-// tenant's report has; this adds the reports the desk read as a one-day move (desk-notes.json), which
-// are not a day/month swap at all, whatever their tenant writes.
+// tenant's report has. Reports the desk read as a one-day move (desk-notes.json) are counted where they
+// are filed, by tenant, and only noted on that problem.
 import { causeOf, type Cause, type Report, type Tenant } from '#lib/kb/causes';
 
-export type ProblemKey = Cause | 'one-day' | 'unplaced';
+export type ProblemKey = Cause | 'unplaced';
 
 export type Problem = {
   key: ProblemKey;
   reports: Report[];
   taggedAs: Record<string, number>;
   channels: Record<string, number>;
+  // Of these, the reports the desk read as a one-day move.
+  oneDay: number;
   tenants: string[];
   firstSeen: string;
   lastSeen: string;
@@ -22,7 +24,7 @@ export function problemsOf(
 ): Problem[] {
   const byKey = new Map<ProblemKey, Report[]>();
   for (const r of reports) {
-    const key: ProblemKey = oneDayMove.includes(r.id) ? 'one-day' : (causeOf(r, tenantOf(r)) ?? 'unplaced');
+    const key: ProblemKey = causeOf(r, tenantOf(r)) ?? 'unplaced';
     byKey.set(key, [...(byKey.get(key) ?? []), r]);
   }
   const tally = (rs: Report[], pick: (r: Report) => string) =>
@@ -35,6 +37,7 @@ export function problemsOf(
         reports: rs,
         taggedAs: tally(rs, (r) => r.meta.intakeTag),
         channels: tally(rs, (r) => r.channel),
+        oneDay: rs.filter((r) => oneDayMove.includes(r.id)).length,
         tenants: [...new Set(rs.map((r) => r.tenant))].sort(),
         firstSeen: days[0],
         lastSeen: days[days.length - 1],

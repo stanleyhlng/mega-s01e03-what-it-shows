@@ -44,7 +44,14 @@
   </tbody>
 </table>
 
+{#each problems as p (p.key)}
+  {#if p.oneDay}
+    <p class="note">{p.oneDay} reports read as a one-day move; filed under <code>{p.key}</code> by tenant.</p>
+  {/if}
+{/each}
+
 <style>
   .sum { font-size: 1.1rem; }
   .tags { color: var(--muted); font-size: 0.85em; }
+  .note { color: var(--muted); font-size: 0.85em; }
 </style>
