@@ -1,0 +1,50 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: stanleyhlng
+status: proposed
+reviewed: 2026-11-02
+signature: stanleyhlng
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) was merged as one issue: the parser reads dates month first, our tenants write the day first, the fix is queued. That is true for most of the reports. It is not true for all of them, and the queued fix will leave some of them open.
+
+<Callout kind="warn">
+The ticket is marked known, but it holds more than one problem. A fix for the parser alone closes the ticket and leaves the other problems unreported.
+</Callout>
+
+## What is in the ticket
+
+<ProblemTable ticket={4471} />
+
+Counts are computed from the ticket system export, one report per id (the export pages overlap, so the same report can come twice). The three rows add up to the ticket total.
+
+## Problem 1 · `parser`: the shared parser reads every date month first
+
+This is the problem #4471 describes. A day-first tenant's dates come out with day and month swapped, in the app, in email and in the booking-v2 form. Every tenant on file with a day-first locale is affected. The fix queued on #4471 is the right fix for this row and only for this row.
+
+## Problem 2 · `hint`: booking-v3 tells day-first people to type month first
+
+The booking-v3 form prints `MM/DD/YYYY` under its date field. Day-first tenants' people type what the hint says, and the form reads it their way, so day and month swap again. The symptom is the same as the parser's, so the reports look like duplicates, but the bug is in the form's hint and the parser fix will not touch it. It only appears in the `form` channel, for the tenants on booking-v3.
+
+## Problem 3 · `one-day`: dates that move by exactly one day
+
+A handful of reports do not describe a swap. They describe a date that moved by one day: Monday for Tuesday, an invite that arrived before the booking was made, one meeting that two time zones saw on different days, one month that was off and the rest fine. These look like a time zone or date-rollover bug, and the desk already marked them as one-day moves in its notes file (`desk-notes.json`), and the incident page only footnotes them. The data does not prove the cause; it does show that a day/month fix cannot explain them.
+
+## Why the merge went wrong
+
+[Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges on subject line. The three problems share subject lines ("Date is wrong", "Appointment moved by itself"), so subject matching put them in one ticket. The [triage page](/kb/triage/dedupe) shows the same subject with different causes. Intake's browser guess does not separate them either: the table shows reports tagged `parser` that belong to `hint`, and the other way round.
+
+## What to do
+
+- Keep #4471 for `parser` only, and file `hint` and `one-day` as their own tickets.
+- Match duplicates on cause (tenant locale and form), not on subject. A new decision record should replace 0001; an accepted decision is never edited.
+- Re-check the counts above after the parser fix ships. Whatever keeps arriving after that is `hint` or `one-day`.
+
+<RenderStamp {signature} />
