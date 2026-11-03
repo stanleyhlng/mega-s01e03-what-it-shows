@@ -4,7 +4,7 @@ title: '#4471 · three problems, not one'
 owner: stanleyhlng
 status: proposed
 reviewed: 2026-11-02
-signature: stanleyhlng
+signature: v1.eyJzdWIiOiIxMjgyIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTM2ODk5NDIsImV4cCI6MTc5Mzc3NjM0Mn0.oj836_ZL6sBLBsUW96O_M5OC537ctnny-w5hyv4o_Fg
 ---
 
 <script>
